@@ -4,6 +4,8 @@ __pycache__/
 *$py.class
 
 .idea/
+.vscode/
+.embeddings/
 
 # C extensions
 *.so

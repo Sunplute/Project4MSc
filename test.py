@@ -1,3 +1,3 @@
-# import tensorflow as tf
+import tensorflow as tf
 
-# print(tf.test.is_gpu_available())
+print(tf.test.is_gpu_available())
