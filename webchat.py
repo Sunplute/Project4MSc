@@ -38,7 +38,7 @@ def home():
         room = code
         if create != False:
             room = generate_unique_code(4)
-            rooms[room] = {"members": 0, "message":[]}
+            rooms[room] = {"members": 0, "messages":[]}
         elif code not in rooms:
             return render_template("home.html", error = "Room dose not exist.", code=code, name=name)
         
@@ -53,10 +53,26 @@ def home():
 def room():
     room = session.get("room")
     if room is None or session.get("name") is None or room not in rooms:
-        return redirect(url_for(home))
-    return render_template("room.html")
+        return redirect(url_for("home"))
 
-@SocketIO.on('connect')
+    return render_template("room.html", code = room, messages = rooms[room]["messages"])
+
+@socketio.on("message")
+def message(data):
+    room = session.get("room")
+    if room not in rooms:
+        return
+    
+    content = {
+        "name":session.get("name"),
+        "message":data["data"]
+    }
+    send(content, to=room)
+    rooms[room]["messages"].append(content)
+    print(f"{session.get('name')} said: {data['data']}")
+
+
+@socketio.on('connect')
 def connect(auth):
     room = session.get('room')
     name = session.get('name')
@@ -67,10 +83,24 @@ def connect(auth):
         return
     
     join_room(room)
-    send({"name":name, "message": "has entered the room"}, to=room)
+    send({"name":"System", "message": "{} has entered the room".format(name)}, to=room)
     rooms[room]["members"] += 1
-    print(f"{name} joined room {room}")
+    print(f"{name} has joined the room {room}")
 
+@socketio.on("disconnect")
+def disconnect():
+    room = session.get('room')
+    name = session.get('name')
+    leave_room(room)
+
+    if room in rooms:
+        rooms[room]["members"] -=1
+        if rooms[room]["members"] <= 0:
+            del rooms[room]
+
+    send({"name":"System", "message": "{} has left the room".format(name)}, to=room)
+    print(f"{name} has left room {room}")
+    
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
