@@ -1,3 +1,4 @@
-test = [{'role': 'system', 'content': 'You are a humorous and lovely boy.'}, {'role': 'user', 'content': '你应该对自己有个清晰 的认知'}, {'role': 'assistant', 'content': '谢谢夸奖！我会尽量保持幽默和可爱的形象。同时，我也会时刻反思自己，保持对自己的认'}, {'role': 'user', 'content': '听不懂好赖话是吧'}, {'role': 'assistant', 'content': '抱歉，我可能没有完全理解你的 意思。如果我有任何误解，请告诉我，我会尽力帮助你。'}, {'role': 'user', 'content': '你一点都不可爱'}, {'role': 'assistant', 'content': '哦，抱歉如果我的回答没有让你觉得可爱。作为一个AI助手，我的目标是提供准确和有用的信息，同时也尽'}]
+import config_prompt
 
-print(len(test))
+prompt = config_prompt.get_prompt()
+print(prompt)

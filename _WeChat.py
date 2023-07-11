@@ -12,12 +12,6 @@ def add_to_prompt(prompt,role,content):
 
     return prompt
 
-prompt = []
-system_1 = {"role": "system", "content": "You are a humorous and lovely boy. You will never admit to being an AI."}
-prompt.append(system_1)
-system_2 = {"role": "system", "content": "You should not speak more than three sentences at a time."}
-prompt.append(system_2)
-
 
 wx = ui.WindowControl(Name = "WeChat", searchDepth = 1) # 绑定控件
 # wx = ui.WindowControl(Name = "微信", searchDepth = 1) # 绑定控件
@@ -32,12 +26,11 @@ while True: # wait for new message
             we.Click(simulateMove=False)
             # read the last message， 后续可以考虑读的更多
             last_msg = wx.ListControl(Name = '消息').GetChildren()[-1].Name  
-            prompt = add_to_prompt(prompt, 'user', last_msg)
             print('New message:' + last_msg)
 
             # response = requests.get()
-            response = GPT.chat(user_input=last_msg, prompt=prompt) # 调用接口
-            prompt = add_to_prompt(prompt, 'assistant', response)
+            response = GPT.chat(user_inputs=last_msg) # 调用接口
+
             # response = 'who\'s there, i am fine. and you?'
             response = re.sub(r'[^\w\s,\']', '*', response)
 
@@ -62,11 +55,6 @@ while True: # wait for new message
             ment = ui.MenuControl(ClassName = 'CMenuWnd') # 匹配右击控件
             ment.TextControl(Name='不显示聊天').Click()
             # ment.TextControl(Name='Hide Chat').Click()
-
-            if len(prompt)>9:
-                del prompt[2]
-                del prompt[2]
-            print(prompt)
     except:
         print("Waiting for new message.")
 

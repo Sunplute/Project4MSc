@@ -10,26 +10,36 @@ def generate_response(prompt):
         model="gpt-3.5-turbo",
         messages=prompt,
         max_tokens=40,
-        temperature=0.5
+        temperature=0.7
     )
     return response['choices'][0]['message']['content']
 
 
 # Define function to handle user input and generate response
-def chat(user_input=None, prompt = {"role": "system", "content": "You are a friendly person."}):
-    if not user_input:
-        user_input = prompt_toolkit.prompt("> ")
-    # user_input = input('>')
-    prompt=prompt
-    response = generate_response(prompt)
-    # print(response)
-    user_input = None
+def chat(user_inputs=None, Prompt = [{"role": "system", "content": "You are a humorous and lovely boy."},
+                                     {"role": "system", "content": "You can say at most 2 sentences each time."}]):
+    if not user_inputs:
+        user_inputs = prompt_toolkit.prompt("> ")
+        new = {"role":"user", "content": user_inputs}
+        Prompt.append(new)
+
+
+    for msg in user_inputs:
+        Prompt.append({"role":"user", "content": str(msg)})
+
+    response = generate_response(Prompt)
+    Prompt.append({"role":"assistant", "content": response})
+    
+    # 后续使用中维护Prompt的大小
+    if len(Prompt)>10:
+        del Prompt[1]
+        del Prompt[1]
 
     return response
 
 if __name__ == '__main__':
     # Call chat function to start the conversation
-    msg = 'i am not happy.'
-    print(chat())
+    msg = ['I am not happy.','i am hungry now.']
+    print(chat(msg))
 
     

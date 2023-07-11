@@ -2,11 +2,16 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from flask_socketio import join_room, leave_room, send, SocketIO
 import random
 from string import ascii_uppercase
+import time
+
+import GPT
+from emotion_analysis import clf_emotion
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "msc2023sjq"
 socketio = SocketIO(app)
 
+bot_name = "Azure"
 rooms = {}
 
 def generate_unique_code(Length):
@@ -67,10 +72,36 @@ def message(data):
         "name":session.get("name"),
         "message":data["data"]
     }
+    
     send(content, to=room)
     rooms[room]["messages"].append(content)
-    print(f"{session.get('name')} said: {data['data']}")
 
+    # 收集用户历史数据
+    user_history = []
+    for msg in rooms[room]["messages"]:
+        if msg["name"] == session.get("name"):
+            user_history.append(msg["message"])
+
+    # ==============generate responses from GPT with the content=============
+    gpt_response= GPT.chat(user_inputs = user_history) 
+    # gpt_response= str(user_history) 
+    # ==============generate emotion class of current sentense =============
+    class_response, _ = clf_emotion(data["data"])
+    # 后续可以尝试将分类结果作为prompt信息使用*************************
+    # 
+    response = '(' + class_response + ')  ' + gpt_response
+    # time.sleep(2) # simulate for real chating by waiting 2s
+    send({"name":bot_name, "message":response}, to=room) #发送到界面
+
+    bot_content = {
+        "name":bot_name,
+        "message":response
+    }
+    rooms[room]["messages"].append(bot_content)
+
+    print("=========================")
+    print(rooms[room]["messages"]) #[{'name': 'sss', 'message': 'asdasdasd'}, {'name': 'Azure', 'message': 'Hello! How can I help you today?'}]
+    # print(f"{session.get('name')} said: {data['data']}")
 
 @socketio.on('connect')
 def connect(auth):
