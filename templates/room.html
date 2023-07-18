@@ -3,8 +3,9 @@
 <div class="message-box">
     <h2>Chat Room: {{code}}</h2>
     <div class="messages" id="messages"></div>
+    <div id="emotion-container"></div>
     <div class="inputs">
-        <input type="text" rows="3" placeholder="Message" name="message" id="message" />
+        <input type="text" rows="3" placeholder="Message" name="message" id="message" onkeypress="handleKeyPress(event)"/>
         <button type="button" name="send" id="send-btn" onclick="sendMessage()">Send</button>
     </div>
 </div>
@@ -29,6 +30,10 @@
 
     scoketio.on("message", (data) => {
         createMessage(data.name, data.message)
+        const emotionContainer = document.getElementById('emotion-container');
+        if (data.emotion != null){
+            emotionContainer.innerText = `Mood: ${data.emotion}`; 
+        }
     });
 
     const sendMessage = () => {
@@ -37,6 +42,13 @@
         scoketio.emit("message", { data: message.value });
         message.value = "";
     };
+    // Press ENTER to send
+    function handleKeyPress(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            }
 </script>
 {% for msg in messages %}
 <script type="text/javascript">

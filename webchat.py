@@ -3,6 +3,8 @@ from flask_socketio import join_room, leave_room, send, SocketIO
 import random
 from string import ascii_uppercase
 import time
+from collections import Counter
+
 
 import GPT
 from emotion_analysis import clf_emotion
@@ -13,6 +15,7 @@ socketio = SocketIO(app)
 
 bot_name = "Azure"
 rooms = {}
+emotion = {}
 
 def generate_unique_code(Length):
     while True:
@@ -68,13 +71,37 @@ def message(data):
     if room not in rooms:
         return
     
+    # content = {
+    #     "name":session.get("name"),
+    #     "message":data["data"]
+    # }
+    
+    # send(content, to=room)
+    # rooms[room]["messages"].append(content)
+
+    # ==============generate emotion class of current sentense =============
+    # different model of lstm and bert can be choosen according to the parameter 
+    class_response, _ = clf_emotion(data["data"], model = 'lstm')
+
     content = {
         "name":session.get("name"),
-        "message":data["data"]
+        "message":data["data"] + '(' + class_response + ')  '
     }
-    
+
+    # Display the content of user conversations together with emotional tags
     send(content, to=room)
     rooms[room]["messages"].append(content)
+
+    # store the emotions
+    if session.get("name") in emotion:
+        emotion[session.get("name")].append(class_response)
+    else:
+        emotion[session.get("name")] = []
+        emotion[session.get("name")].append(class_response)
+
+    print("="*20, emotion[session.get("name")])
+    # Take certain strategies to aggregate and assess current sentiment
+    selected_emotion = select_emotion(emotion[session.get("name")])
 
     # 收集用户历史数据
     user_history = []
@@ -83,20 +110,20 @@ def message(data):
             user_history.append(msg["message"])
 
     # ==============generate responses from GPT with the content=============
-    gpt_response= GPT.chat(user_inputs = user_history) 
-    # gpt_response= str(user_history) 
-    # ==============generate emotion class of current sentense =============
-    class_response, _ = clf_emotion(data["data"])
-    # 后续可以尝试将分类结果作为prompt信息使用*************************
-    # 
-    response = '(' + class_response + ')  ' + gpt_response
-    # time.sleep(2) # simulate for real chating by waiting 2s
-    send({"name":bot_name, "message":response}, to=room) #发送到界面
+    gpt_response= GPT.chat(user_inputs = user_history, current_emotion = selected_emotion) 
+    # gpt_response = str(emotion[session.get("name")]) 
+
+    response = gpt_response
+    time.sleep(2) # simulate for real chating by waiting 2s
 
     bot_content = {
         "name":bot_name,
-        "message":response
+        "message":response,
+        "emotion":selected_emotion
     }
+
+    send(bot_content, to=room) #发送到界面
+
     rooms[room]["messages"].append(bot_content)
 
     print("=========================")
@@ -131,6 +158,19 @@ def disconnect():
 
     send({"name":"System", "message": "{} has left the room".format(name)}, to=room)
     print(f"{name} has left room {room}")
+
+
+def select_emotion(emotion_list):
+    counter = Counter(emotion_list)
+    most_common = counter.most_common(1)
+
+    most_common_element = most_common[0][0]
+    # count = most_common[0][1]
+
+    # print(f"最多的元素是: {most_common_element}")
+    # print(f"出现的次数是: {count}")
+
+    return most_common_element
     
 
 if __name__ == "__main__":

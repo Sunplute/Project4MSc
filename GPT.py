@@ -16,7 +16,7 @@ def generate_response(prompt):
 
 
 # Define function to handle user input and generate response
-def chat(user_inputs=None, Prompt = [{"role": "system", "content": "You are a humorous and lovely boy."},
+def chat(user_inputs=None, current_emotion="sadness", Prompt = [{"role": "system", "content": "You are a humorous and lovely boy."},
                                      {"role": "system", "content": "You can say at most 2 sentences each time."}]):
     if not user_inputs:
         user_inputs = prompt_toolkit.prompt("> ")
@@ -26,6 +26,9 @@ def chat(user_inputs=None, Prompt = [{"role": "system", "content": "You are a hu
 
     for msg in user_inputs:
         Prompt.append({"role":"user", "content": str(msg)})
+
+    # emphasis the current emotion
+    Prompt.append({"role":"system", "content": "The user's current sentiment is {}.".format(current_emotion)})
 
     response = generate_response(Prompt)
     Prompt.append({"role":"assistant", "content": response})
