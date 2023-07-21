@@ -81,7 +81,7 @@ def message(data):
 
     # ==============generate emotion class of current sentense =============
     # different model of lstm and bert can be choosen according to the parameter 
-    class_response, _ = clf_emotion(data["data"], model = 'lstm')
+    class_response, _ = clf_emotion(data["data"], model = 'bert')
 
     content = {
         "name":session.get("name"),

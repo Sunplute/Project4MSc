@@ -29,7 +29,7 @@ while True: # wait for new message
             print('New message:' + last_msg)
 
             # response = requests.get()
-            response = GPT.chat(user_inputs=last_msg) # 调用接口
+            response = GPT.chat(user_inputs=[last_msg], current_emotion = 'joy') # 调用接口
 
             # response = 'who\'s there, i am fine. and you?'
             response = re.sub(r'[^\w\s,\']', '*', response)

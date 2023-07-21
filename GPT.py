@@ -31,12 +31,14 @@ def chat(user_inputs=None, current_emotion="sadness", Prompt = [{"role": "system
     Prompt.append({"role":"system", "content": "The user's current sentiment is {}.".format(current_emotion)})
 
     response = generate_response(Prompt)
+
+    del Prompt[-1]
     Prompt.append({"role":"assistant", "content": response})
     
     # 后续使用中维护Prompt的大小
     if len(Prompt)>10:
-        del Prompt[1]
-        del Prompt[1]
+        del Prompt[2]
+        del Prompt[2]
 
     return response
 
