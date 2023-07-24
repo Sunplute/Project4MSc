@@ -85,6 +85,28 @@
 			});
 		});
 
+		function updateEmotion() {
+            // 创建XMLHttpRequest对象
+            var xhr = new XMLHttpRequest();
+            
+            // 配置请求
+            xhr.open('GET', '/get_emotion', true);
+
+            // 处理响应
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // 更新页面上的内容
+                        document.getElementById('current_emotion').innerText = xhr.responseText;
+                    } else {
+                        console.error('Request failed:', xhr.status);
+                    }
+                }
+            };
+            
+            // 发送请求
+            xhr.send();
+        }
 		
 	</script>
 </body>

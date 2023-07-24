@@ -19,6 +19,11 @@ def chat():
     input = msg
     return get_Chat_response(input)
 
+@app.route('/get_emotion')
+def get_output():
+    latest_output_value = "New Emotion"
+    return jsonify(latest_output_value)
+
 def get_Chat_response(text):
     # Let's chat for 5 lines
     for step in range(5):
