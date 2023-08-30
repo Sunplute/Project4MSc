@@ -12,5 +12,5 @@ Welcome to the code repository for the author's Master's dissertation conducted 
 
 ## Contact Information
 
-For further information or inquiries, please refer to the dissertation. Feel free to get in touch with any questions via WeChat at: 17709637215. Your feedback and inquiries are greatly appreciated!
+For further information or inquiries, please refer to the dissertation. Feel free to get in touch with any questions via WeChat at: 17709637215, Email: sun_05202022@126.com. Your feedback and inquiries are greatly appreciated!
 
